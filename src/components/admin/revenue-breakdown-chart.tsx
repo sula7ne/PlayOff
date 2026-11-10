@@ -29,11 +29,13 @@ const chartConfig = {} satisfies ChartConfig;
 export function RevenueBreakdownChart({
   from,
   to,
+  adminId,
 }: {
   from?: string | null;
   to?: string | null;
+  adminId?: string | null;
 }) {
-  const { data, isLoading } = useRevenueBreakdown(from, to);
+  const { data, isLoading } = useRevenueBreakdown(from, to, adminId);
 
   const [view, setView] = useState<View>("root");
   const [category, setCategory] = useState("");

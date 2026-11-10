@@ -9,14 +9,19 @@ export type RevenuePoint = {
 
 export type Granularity = "hour" | "day";
 
-export function useAnalytics(from?: string | null, to?: string | null) {
+export function useAnalytics(
+  from?: string | null,
+  to?: string | null,
+  adminId?: string | null,
+) {
   const params = new URLSearchParams();
   if (from) params.set("from", from);
   if (to) params.set("to", to);
+  if (adminId && adminId !== "all") params.set("adminId", adminId);
   const qs = params.toString();
 
   return useQuery({
-    queryKey: ["analytics", from, to],
+    queryKey: ["analytics", from, to, adminId],
     queryFn: () =>
       apiFetch<{ data: RevenuePoint[]; granularity: Granularity }>(
         `/api/admin/analytics${qs ? `?${qs}` : ""}`,

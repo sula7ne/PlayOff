@@ -14,7 +14,7 @@ import { formatTenge } from "@/lib/format";
 import { useAnalytics } from "@/hooks/use-analytics";
 
 const chartConfig = {
-  console: { label: "Аренда консолей", color: "#ff1f3d" },
+  console: { label: "Станции", color: "#ff1f3d" },
   bar: { label: "Бар / Доп. услуги", color: "#22d3ee" },
 } satisfies ChartConfig;
 
@@ -57,11 +57,13 @@ function formatChartLabel(key: string, granularity: "hour" | "day"): string {
 export function RevenueChart({
   from,
   to,
+  adminId,
 }: {
   from?: string | null;
   to?: string | null;
+  adminId?: string | null;
 }) {
-  const { data, isLoading } = useAnalytics(from, to);
+  const { data, isLoading } = useAnalytics(from, to, adminId);
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full rounded-xl" />;

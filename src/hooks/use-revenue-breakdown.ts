@@ -14,14 +14,16 @@ export type RevenueBreakdown = {
 export function useRevenueBreakdown(
   from?: string | null,
   to?: string | null,
+  adminId?: string | null,
 ) {
   const params = new URLSearchParams();
   if (from) params.set("from", from);
   if (to) params.set("to", to);
+  if (adminId && adminId !== "all") params.set("adminId", adminId);
   const qs = params.toString();
 
   return useQuery({
-    queryKey: ["revenue-breakdown", from, to],
+    queryKey: ["revenue-breakdown", from, to, adminId],
     queryFn: () =>
       apiFetch<RevenueBreakdown>(
         `/api/admin/revenue-breakdown${qs ? `?${qs}` : ""}`,

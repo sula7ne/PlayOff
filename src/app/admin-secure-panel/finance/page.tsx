@@ -10,16 +10,27 @@ import {
   type DateRange,
 } from "@/components/admin/date-range-picker";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useFinance } from "@/hooks/use-finance";
+import { useAdmins } from "@/hooks/use-admins";
 import { toIso } from "@/lib/period";
 
 export default function FinancePage() {
   const [range, setRange] = useState<DateRange>({ from: null, to: null });
+  const [adminId, setAdminId] = useState("all");
+
+  const { data: admins = [] } = useAdmins();
 
   const fromIso = toIso(range.from);
   const toIsoStr = toIso(range.to);
 
-  const { data, isLoading, isError } = useFinance(fromIso, toIsoStr);
+  const { data, isLoading, isError } = useFinance(fromIso, toIsoStr, adminId);
 
   const summary = data?.summary ?? { total: 0, kaspi: 0, cash: 0 };
   const transactions = data?.transactions ?? [];
@@ -33,8 +44,35 @@ export default function FinancePage() {
         </p>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <DateRangePicker range={range} onChange={setRange} />
+        <div className="space-y-1.5">
+          <span className="block text-xs text-muted-foreground text-right">Сотрудник</span>
+          <Select
+            value={adminId}
+            onValueChange={(value) => setAdminId(value ?? "all")}
+          >
+            <SelectTrigger className="w-[220px]">
+              <SelectValue>
+                {(value: string | null) => {
+                  if (value && value !== "all") {
+                    const admin = admins.find((a) => a.id === value);
+                    if (admin) return admin.name || admin.username;
+                  }
+                  return "Все админы";
+                }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все админы</SelectItem>
+              {admins.map((a) => (
+                <SelectItem key={a.id} value={a.id}>
+                  {a.name || a.username}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {isLoading && (
@@ -59,8 +97,12 @@ export default function FinancePage() {
           <FinanceSummaryCards summary={summary} />
 
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <RevenueChart from={fromIso} to={toIsoStr} />
-            <RevenueBreakdownChart from={fromIso} to={toIsoStr} />
+            <RevenueChart from={fromIso} to={toIsoStr} adminId={adminId} />
+            <RevenueBreakdownChart
+              from={fromIso}
+              to={toIsoStr}
+              adminId={adminId}
+            />
           </div>
 
           <TransactionsTable transactions={transactions} />

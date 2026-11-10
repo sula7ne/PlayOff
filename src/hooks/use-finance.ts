@@ -9,6 +9,7 @@ export type Transaction = {
   paymentMethod: PaymentMethod;
   category: string | null;
   createdAt: string;
+  adminName: string | null;
 };
 
 export type FinanceSummary = {
@@ -17,14 +18,19 @@ export type FinanceSummary = {
   cash: number;
 };
 
-export function useFinance(from?: string | null, to?: string | null) {
+export function useFinance(
+  from?: string | null,
+  to?: string | null,
+  adminId?: string | null,
+) {
   const params = new URLSearchParams();
   if (from) params.set("from", from);
   if (to) params.set("to", to);
+  if (adminId && adminId !== "all") params.set("adminId", adminId);
   const qs = params.toString();
 
   return useQuery({
-    queryKey: ["finance", from, to],
+    queryKey: ["finance", from, to, adminId],
     queryFn: () =>
       apiFetch<{ summary: FinanceSummary; transactions: Transaction[] }>(
         `/api/admin/finance${qs ? `?${qs}` : ""}`,

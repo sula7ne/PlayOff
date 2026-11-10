@@ -46,6 +46,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const from = searchParams.get("from");
   const to = searchParams.get("to");
+  const adminId = searchParams.get("adminId");
   const fromDate = from ? new Date(from) : null;
   const toDate = to ? new Date(to) : null;
 
@@ -64,8 +65,10 @@ export async function GET(request: Request) {
         }
       : undefined;
 
+  const adminFilter = adminId && adminId !== "all" ? { adminId } : undefined;
+
   const transactions = await prisma.financeTransaction.findMany({
-    where: { type: "INCOME", ...dateFilter },
+    where: { type: "INCOME", ...dateFilter, ...adminFilter },
     orderBy: { createdAt: "asc" },
   });
 

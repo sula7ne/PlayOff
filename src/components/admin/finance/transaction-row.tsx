@@ -17,6 +17,7 @@ export function TransactionRow({
         </div>
         <div className="text-xs text-muted-foreground">
           {formatTime(transaction.createdAt)}
+          {transaction.adminName ? ` · ${transaction.adminName}` : ""}
         </div>
       </div>
       <PaymentBadge method={transaction.paymentMethod} />

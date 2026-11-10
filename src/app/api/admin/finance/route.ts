@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const from = searchParams.get("from");
   const to = searchParams.get("to");
+  const adminId = searchParams.get("adminId");
 
   const dateFilter =
     from || to
@@ -23,9 +24,12 @@ export async function GET(request: Request) {
         }
       : undefined;
 
+  const adminFilter = adminId && adminId !== "all" ? { adminId } : undefined;
+
   const transactions = await prisma.financeTransaction.findMany({
-    where: dateFilter,
+    where: { ...dateFilter, ...adminFilter },
     orderBy: { createdAt: "desc" },
+    include: { admin: { select: { name: true } } },
   });
 
   const income = transactions.filter((t) => t.type === "INCOME");
@@ -55,6 +59,14 @@ export async function GET(request: Request) {
       kaspi,
       cash,
     },
-    transactions,
+    transactions: transactions.map((t) => ({
+      id: t.id,
+      amount: t.amount,
+      type: t.type,
+      paymentMethod: t.paymentMethod,
+      category: t.category,
+      createdAt: t.createdAt,
+      adminName: t.admin?.name ?? null,
+    })),
   });
 }
