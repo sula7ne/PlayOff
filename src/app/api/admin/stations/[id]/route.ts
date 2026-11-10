@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireSuperAdmin } from "@/lib/auth";
 import { stationSchema, stationUpdateSchema } from "@/lib/validations";
 import { computePriceWithOverrides } from "@/lib/pricing";
-import type { StationStatus } from "@generated/prisma/enums";
+import type { StationStatus } from "@/generated/prisma/enums";
 
 export async function PATCH(
   request: Request,

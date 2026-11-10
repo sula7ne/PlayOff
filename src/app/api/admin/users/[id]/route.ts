@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { userSchema } from "@/lib/validations";
-import type { UserRank } from "@generated/prisma/enums";
+import type { UserRank } from "@/generated/prisma/enums";
 
 export async function PATCH(
   request: Request,

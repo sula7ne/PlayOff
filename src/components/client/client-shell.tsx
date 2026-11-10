@@ -7,6 +7,7 @@ import {
   miniApp,
   closingBehavior,
   useRawInitData,
+  isTMA,
 } from "@tma.js/sdk-react";
 import { hapticImpact } from "@/lib/telegram";
 import { BottomNav } from "@/components/client/bottom-nav";
@@ -43,6 +44,8 @@ export function ClientShell({ children }: { children: ReactNode }) {
   const rawInitData = useInitData();
 
   useEffect(() => {
+    if (!isTMA()) return;
+
     const cleanup = init();
 
     miniApp.mount();
