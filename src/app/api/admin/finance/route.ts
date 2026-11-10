@@ -1,0 +1,44 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireSuperAdmin } from "@/lib/auth";
+
+export async function GET(request: Request) {
+  const admin = await requireSuperAdmin();
+
+  if (!admin) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+
+  const dateFilter =
+    from || to
+      ? {
+          createdAt: {
+            ...(from ? { gte: new Date(from) } : {}),
+            ...(to ? { lte: new Date(to) } : {}),
+          },
+        }
+      : undefined;
+
+  const transactions = await prisma.financeTransaction.findMany({
+    where: dateFilter,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const income = transactions.filter((t) => t.type === "INCOME");
+  const total = income.reduce((sum, t) => sum + t.amount, 0);
+  const kaspi = income
+    .filter((t) => t.paymentMethod === "KASPI_QR")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const cash = income
+    .filter((t) => t.paymentMethod === "CASH")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  return NextResponse.json({
+    summary: { total, kaspi, cash },
+    transactions,
+  });
+}

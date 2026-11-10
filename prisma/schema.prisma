@@ -1,0 +1,265 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ShiftStatus {
+  OPEN
+  CLOSED
+}
+
+enum StationStatus {
+  FREE
+  BUSY
+  RESERVED
+  MAINTENANCE
+}
+
+enum UserRank {
+  HERALD
+  GUARDIAN
+  CRUSADER
+  ARCHON
+  LEGEND
+  ANCIENT
+  DIVINE
+  TITAN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  KASPI_QR
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Club {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("clubs")
+}
+
+model Station {
+  id        String        @id @default(cuid())
+  name      String        @unique
+  isVip     Boolean       @default(false) @map("is_vip")
+  status    StationStatus @default(FREE)
+  busySince DateTime?     @map("busy_since")
+  createdAt DateTime      @default(now()) @map("created_at")
+  posX      Float         @default(0)
+  posY      Float         @default(0)
+  images    String[]      @default([])
+  games     String[]      @default([])
+
+  bookings Booking[]
+  orders   Order[]
+  sessions GamingSession[]
+
+  @@map("stations")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  phone      String?  @unique
+  telegramId String?  @unique @map("telegram_id")
+  name       String?
+  xp         Int      @default(0)
+  balance    Int      @default(0)
+  rank       UserRank @default(HERALD)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  bookings Booking[]
+  orders   Order[]
+
+  @@map("users")
+}
+
+model AdminUser {
+  id        String    @id @default(cuid())
+  name      String
+  username  String    @unique
+  password  String
+  role      AdminRole @default(ADMIN)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  workShifts          WorkShift[]
+  gamingSessions      GamingSession[]
+  financeTransactions FinanceTransaction[] @relation("AdminFinanceTransactions")
+
+  @@map("admin_users")
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  userId         String        @map("user_id")
+  stationId      String        @map("station_id")
+  startTime      DateTime      @map("start_time")
+  endTime        DateTime      @map("end_time")
+  status         BookingStatus @default(CONFIRMED)
+  paymentMethod  PaymentMethod @default(KASPI_QR) @map("payment_method")
+  totalPrice     Int           @map("total_price")
+  expiresAt      DateTime?     @map("expires_at")
+  kaspiPaymentId String?       @map("kaspi_payment_id")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  station             Station              @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  financeTransactions FinanceTransaction[]
+
+  @@index([userId])
+  @@index([stationId])
+  @@index([startTime, endTime])
+  @@map("bookings")
+}
+
+model BarItem {
+  id       String  @id @default(cuid())
+  name     String
+  category String?
+  price    Int
+  stock    Int     @default(0)
+  imageUrl String?
+
+  orderItems OrderItem[]
+
+  @@map("bar_items")
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  number        Int           @default(0) @map("number")
+  userId        String?       @map("user_id")
+  stationId     String?       @map("station_id")
+  totalAmount   Int           @map("total_amount")
+  paymentMethod PaymentMethod @default(CASH) @map("payment_method")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  user                User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  station             Station?             @relation(fields: [stationId], references: [id], onDelete: SetNull)
+  items               OrderItem[]
+  financeTransactions FinanceTransaction[]
+
+  @@index([userId])
+  @@index([stationId])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model FinanceTransaction {
+  id              String          @id @default(cuid())
+  amount          Int
+  type            TransactionType
+  paymentMethod   PaymentMethod   @default(CASH) @map("payment_method")
+  category        String?
+  bookingId       String?         @map("booking_id")
+  orderId         String?         @map("order_id")
+  gamingSessionId String?         @map("gaming_session_id")
+  adminId         String?         @map("admin_id")
+  shiftId         String?         @map("shift_id")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  booking       Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  order         Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  gamingSession GamingSession? @relation(fields: [gamingSessionId], references: [id], onDelete: SetNull)
+  admin         AdminUser?     @relation("AdminFinanceTransactions", fields: [adminId], references: [id], onDelete: SetNull)
+  shift         WorkShift?     @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([orderId])
+  @@index([gamingSessionId])
+  @@index([adminId])
+  @@index([shiftId])
+  @@index([createdAt])
+  @@map("finance_transactions")
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String @map("order_id")
+  barItemId String @map("bar_item_id")
+  quantity  Int    @default(1)
+  price     Int    @default(0)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  barItem BarItem @relation(fields: [barItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([barItemId])
+  @@map("order_items")
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([phone])
+  @@map("verification_codes")
+}
+
+model WorkShift {
+  id           String      @id @default(cuid())
+  adminId      String      @map("admin_id")
+  startTime    DateTime    @default(now()) @map("start_time")
+  endTime      DateTime?   @map("end_time")
+  status       ShiftStatus @default(OPEN)
+  initialCash  Float       @map("initial_cash")
+  finalCash    Float?      @map("final_cash")
+  totalRevenue Float?      @map("total_revenue")
+
+  admin        AdminUser            @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  transactions FinanceTransaction[]
+  sessions     GamingSession[]
+
+  @@index([adminId])
+  @@index([status])
+  @@map("work_shifts")
+}
+
+model GamingSession {
+  id             String    @id @default(cuid())
+  stationId      String    @map("station_id")
+  adminId        String?   @map("admin_id")
+  shiftId        String?   @map("shift_id")
+  startTime      DateTime  @default(now()) @map("start_time")
+  endTime        DateTime? @map("end_time")
+  totalPrice     Int?      @map("total_price")
+  durationHours  Int?      @map("duration_hours")
+  applyHappyHour Boolean?  @map("apply_happy_hour")
+  applyPromo21   Boolean?  @map("apply_promo_21")
+
+  station Station    @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  admin   AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  shift   WorkShift? @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+
+  financeTransactions FinanceTransaction[]
+
+  @@index([stationId])
+  @@index([adminId])
+  @@index([shiftId])
+  @@map("gaming_sessions")
+}
