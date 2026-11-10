@@ -70,6 +70,9 @@ export function useUpdateStationStatus() {
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["stations"] });
+      void queryClient.invalidateQueries({ queryKey: ["finance"] });
+      void queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      void queryClient.invalidateQueries({ queryKey: ["revenue-breakdown"] });
     },
   });
 }

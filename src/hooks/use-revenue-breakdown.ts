@@ -26,5 +26,6 @@ export function useRevenueBreakdown(
       apiFetch<RevenueBreakdown>(
         `/api/admin/revenue-breakdown${qs ? `?${qs}` : ""}`,
       ),
+    refetchInterval: 15_000,
   });
 }

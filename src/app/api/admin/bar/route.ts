@@ -38,11 +38,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error.format() }, { status: 400 });
   }
 
-  const { name, category, price, stock, imageUrl } = result.data;
+  const { name, code, category, price, stock, imageUrl } = result.data;
 
   const item = await prisma.barItem.create({
     data: {
       name,
+      code: code?.trim() || null,
       category: category ?? null,
       price,
       stock: stock ?? 0,

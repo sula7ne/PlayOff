@@ -80,7 +80,7 @@ async function handleStatusChange(id: string, body: unknown) {
           orderBy: { startTime: "desc" },
         });
 
-        await tx.gamingSession.create({
+        const session = await tx.gamingSession.create({
           data: {
             stationId: id,
             adminId: admin.id,
@@ -90,6 +90,29 @@ async function handleStatusChange(id: string, body: unknown) {
             applyPromo21: applyPromo21 ?? null,
           },
         });
+
+        if (session.durationHours !== null) {
+          const { price: amount } = computePriceWithOverrides(
+            updated.isVip,
+            session.durationHours,
+            session.startTime,
+            0,
+            session.applyHappyHour,
+            session.applyPromo21,
+          );
+
+          await tx.financeTransaction.create({
+            data: {
+              amount,
+              type: "INCOME",
+              paymentMethod: "CASH",
+              category: "GAMING_SESSION",
+              adminId: admin.id,
+              shiftId: session.shiftId,
+              gamingSessionId: session.id,
+            },
+          });
+        }
       }
 
       if (status === "FREE" || status === "RESERVED") {
@@ -117,22 +140,28 @@ async function handleStatusChange(id: string, body: unknown) {
             data: { endTime, totalPrice: amount },
           });
 
-          await tx.financeTransaction.create({
-            data: {
-              amount,
-              type: "INCOME",
-              paymentMethod: "CASH",
-              category: "GAMING_SESSION",
-              adminId: admin.id,
-              shiftId: session.shiftId,
-              gamingSessionId: session.id,
-            },
+          const existing = await tx.financeTransaction.findFirst({
+            where: { gamingSessionId: session.id },
           });
+
+          if (!existing) {
+            await tx.financeTransaction.create({
+              data: {
+                amount,
+                type: "INCOME",
+                paymentMethod: "CASH",
+                category: "GAMING_SESSION",
+                adminId: admin.id,
+                shiftId: session.shiftId,
+                gamingSessionId: session.id,
+              },
+            });
+          }
         }
       }
 
       return updated;
-    });
+    }, { timeout: 15000 });
 
     return NextResponse.json({ station });
   } catch {

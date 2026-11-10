@@ -46,6 +46,10 @@ export function CreateBarItemModal({
             <Input id="bi-name" value={form.name} onChange={(e) => form.setName(e.target.value)} placeholder="Red Bull" />
           </div>
           <div className="space-y-1.5">
+            <Label htmlFor="bi-code">Код (штрих-код)</Label>
+            <Input id="bi-code" value={form.code} inputMode="numeric" maxLength={48} onChange={(e) => form.setCode(e.target.value.replace(/\D/g, ""))} placeholder="4601234567890" />
+          </div>
+          <div className="space-y-1.5">
             <Label>Категория</Label>
             <Select value={form.category} onValueChange={(value) => form.setCategory(String(value ?? BAR_CATEGORIES[0]))}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>

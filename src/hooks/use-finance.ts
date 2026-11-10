@@ -29,5 +29,6 @@ export function useFinance(from?: string | null, to?: string | null) {
       apiFetch<{ summary: FinanceSummary; transactions: Transaction[] }>(
         `/api/admin/finance${qs ? `?${qs}` : ""}`,
       ),
+    refetchInterval: 15_000,
   });
 }

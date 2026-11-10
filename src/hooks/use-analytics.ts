@@ -21,5 +21,6 @@ export function useAnalytics(from?: string | null, to?: string | null) {
       apiFetch<{ data: RevenuePoint[]; granularity: Granularity }>(
         `/api/admin/analytics${qs ? `?${qs}` : ""}`,
       ),
+    refetchInterval: 15_000,
   });
 }

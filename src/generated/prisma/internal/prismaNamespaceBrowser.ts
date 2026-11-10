@@ -154,6 +154,7 @@ export type BookingScalarFieldEnum = (typeof BookingScalarFieldEnum)[keyof typeo
 export const BarItemScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  code: 'code',
   category: 'category',
   price: 'price',
   stock: 'stock',
@@ -170,7 +171,8 @@ export const OrderScalarFieldEnum = {
   stationId: 'stationId',
   totalAmount: 'totalAmount',
   paymentMethod: 'paymentMethod',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  refundedAt: 'refundedAt'
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]

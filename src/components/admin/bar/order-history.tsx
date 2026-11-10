@@ -32,6 +32,11 @@ export function OrderHistory() {
                     {order.items.map((i) => `${i.barItem.name} ×${i.quantity}`).join(", ")}
                   </div>
                 </div>
+                {order.refundedAt && (
+                  <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-400 ring-1 ring-inset ring-red-500/20">
+                    Возврат
+                  </span>
+                )}
                 <PaymentBadge method={order.paymentMethod} />
                 <span className="font-semibold tabular-nums">{formatTenge(order.totalAmount)}</span>
               </button>

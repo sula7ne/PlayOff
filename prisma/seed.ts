@@ -84,16 +84,16 @@ async function main() {
   }
 
   const seedBarItems = [
-    { name: "Панини", category: "Кухня", price: 1800, stock: 15, imageUrl: "https://picsum.photos/seed/panini/400/400" },
-    { name: "Донер", category: "Кухня", price: 1500, stock: 20, imageUrl: "https://picsum.photos/seed/doner/400/400" },
-    { name: "Сендвич", category: "Кухня", price: 1300, stock: 20, imageUrl: "https://picsum.photos/seed/sendvich/400/400" },
-    { name: "Хот-дог", category: "Кухня", price: 1200, stock: 25, imageUrl: "https://picsum.photos/seed/hotdog/400/400" },
-    { name: "Lay's", category: "Снэки", price: 600, stock: 40, imageUrl: "https://picsum.photos/seed/lays/400/400" },
-    { name: "Орешки", category: "Снэки", price: 500, stock: 35, imageUrl: "https://picsum.photos/seed/oreshki/400/400" },
-    { name: "Сухарики", category: "Снэки", price: 350, stock: 50, imageUrl: "https://picsum.photos/seed/suhariki/400/400" },
-    { name: "Red Bull", category: "Бар", price: 900, stock: 24, imageUrl: "https://picsum.photos/seed/redbull/400/400" },
-    { name: "Cola 0.5", category: "Бар", price: 450, stock: 30, imageUrl: "https://picsum.photos/seed/cola/400/400" },
-    { name: "Вода 0.5", category: "Бар", price: 250, stock: 60, imageUrl: "https://picsum.photos/seed/voda/400/400" },
+    { name: "Панини", code: "4600000000011", category: "Кухня", price: 1800, stock: 15, imageUrl: "https://picsum.photos/seed/panini/400/400" },
+    { name: "Донер", code: "4600000000028", category: "Кухня", price: 1500, stock: 20, imageUrl: "https://picsum.photos/seed/doner/400/400" },
+    { name: "Сендвич", code: "4600000000035", category: "Кухня", price: 1300, stock: 20, imageUrl: "https://picsum.photos/seed/sendvich/400/400" },
+    { name: "Хот-дог", code: "4600000000042", category: "Кухня", price: 1200, stock: 25, imageUrl: "https://picsum.photos/seed/hotdog/400/400" },
+    { name: "Lay's", code: "4600000000059", category: "Снэки", price: 600, stock: 40, imageUrl: "https://picsum.photos/seed/lays/400/400" },
+    { name: "Орешки", code: "4600000000066", category: "Снэки", price: 500, stock: 35, imageUrl: "https://picsum.photos/seed/oreshki/400/400" },
+    { name: "Сухарики", code: "4600000000073", category: "Снэки", price: 350, stock: 50, imageUrl: "https://picsum.photos/seed/suhariki/400/400" },
+    { name: "Red Bull", code: "4600000000080", category: "Бар", price: 900, stock: 24, imageUrl: "https://picsum.photos/seed/redbull/400/400" },
+    { name: "Cola 0.5", code: "4600000000097", category: "Бар", price: 450, stock: 30, imageUrl: "https://picsum.photos/seed/cola/400/400" },
+    { name: "Вода 0.5", code: "4600000000103", category: "Бар", price: 250, stock: 60, imageUrl: "https://picsum.photos/seed/voda/400/400" },
   ];
 
   for (const item of seedBarItems) {
@@ -104,7 +104,7 @@ async function main() {
     if (existing) {
       await prisma.barItem.update({
         where: { id: existing.id },
-        data: { imageUrl: item.imageUrl },
+        data: { imageUrl: item.imageUrl, code: item.code },
       });
     } else {
       await prisma.barItem.create({ data: item });

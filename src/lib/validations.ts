@@ -46,6 +46,13 @@ export const bookingUpdateSchema = z.object({
 
 export const barItemSchema = z.object({
   name: z.string().min(1),
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d*$/, "Код должен содержать только цифры")
+    .max(48, "Максимум 48 цифр")
+    .nullable()
+    .optional(),
   category: z.string().optional(),
   price: z.number().int().positive(),
   stock: z.number().int().nonnegative().optional(),
@@ -54,6 +61,13 @@ export const barItemSchema = z.object({
 
 export const barItemUpdateSchema = z.object({
   name: z.string().min(1).optional(),
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d*$/, "Код должен содержать только цифры")
+    .max(48, "Максимум 48 цифр")
+    .nullable()
+    .optional(),
   category: z.string().optional(),
   price: z.number().int().positive().optional(),
   stock: z.number().int().nonnegative().optional(),

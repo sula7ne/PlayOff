@@ -119,7 +119,7 @@ export async function POST(request: Request) {
       });
 
       return created;
-    });
+    }, { timeout: 15000 });
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {

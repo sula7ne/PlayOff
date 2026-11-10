@@ -71,7 +71,7 @@ export async function POST(request: Request) {
           shiftId: shift?.id ?? null,
         },
       });
-    });
+    }, { timeout: 15000 });
 
     return NextResponse.json({ ok: true });
   }

@@ -6,6 +6,7 @@ export function useBarItemForm(onClose: () => void) {
   const createItem = useCreateBarItem();
 
   const [name, setName] = useState("");
+  const [code, setCode] = useState("");
   const [category, setCategory] = useState<string>(BAR_CATEGORIES[0]);
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
@@ -13,6 +14,7 @@ export function useBarItemForm(onClose: () => void) {
 
   const reset = () => {
     setName("");
+    setCode("");
     setCategory(BAR_CATEGORIES[0]);
     setPrice("");
     setStock("");
@@ -30,6 +32,7 @@ export function useBarItemForm(onClose: () => void) {
     createItem.mutate(
       {
         name: name.trim(),
+        code: code.trim() || null,
         category,
         price: priceNum,
         stock: stockNum,
@@ -47,6 +50,8 @@ export function useBarItemForm(onClose: () => void) {
   return {
     name,
     setName,
+    code,
+    setCode,
     category,
     setCategory,
     price,

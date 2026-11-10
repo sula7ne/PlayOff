@@ -33,6 +33,7 @@ function EditForm({
   const updateItem = useUpdateBarItem();
 
   const [name, setName] = useState(item.name);
+  const [code, setCode] = useState(item.code ?? "");
   const [category, setCategory] = useState<string>(
     item.category ?? BAR_CATEGORIES[0],
   );
@@ -52,6 +53,7 @@ function EditForm({
       {
         id: item.id,
         name: name.trim(),
+        code: code.trim() || null,
         category,
         price: priceNum,
         stock: stockNum,
@@ -77,6 +79,18 @@ function EditForm({
             id="edit-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="edit-code">Код (штрих-код)</Label>
+          <Input
+            id="edit-code"
+            value={code}
+            inputMode="numeric"
+            maxLength={48}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+            placeholder="4601234567890"
           />
         </div>
 

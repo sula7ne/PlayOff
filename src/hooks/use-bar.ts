@@ -5,6 +5,7 @@ import type { PaymentMethod } from "@/hooks/use-bookings";
 export type BarItem = {
   id: string;
   name: string;
+  code: string | null;
   category: string | null;
   price: number;
   stock: number;
@@ -18,6 +19,7 @@ export type Order = {
   totalAmount: number;
   paymentMethod: PaymentMethod;
   createdAt: string;
+  refundedAt: string | null;
   items: {
     id: string;
     quantity: number;
@@ -40,6 +42,7 @@ export function useCreateBarItem() {
   return useMutation({
     mutationFn: (input: {
       name: string;
+      code?: string | null;
       category?: string;
       price: number;
       stock?: number;
@@ -62,6 +65,7 @@ export function useUpdateBarItem() {
     mutationFn: ({
       id,
       name,
+      code,
       category,
       price,
       stock,
@@ -69,6 +73,7 @@ export function useUpdateBarItem() {
     }: {
       id: string;
       name?: string;
+      code?: string | null;
       category?: string;
       price?: number;
       stock?: number;
@@ -76,7 +81,7 @@ export function useUpdateBarItem() {
     }) =>
       apiFetch(`/api/admin/bar/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ name, category, price, stock, imageUrl }),
+        body: JSON.stringify({ name, code, category, price, stock, imageUrl }),
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["bar-items"] });
@@ -121,6 +126,22 @@ export function useCreateOrder() {
       void queryClient.invalidateQueries({ queryKey: ["orders"] });
       void queryClient.invalidateQueries({ queryKey: ["bar-items"] });
       void queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
+}
+
+export function useRefundOrder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch(`/api/admin/orders/${id}/refund`, { method: "POST" }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["bar-items"] });
+      void queryClient.invalidateQueries({ queryKey: ["finance"] });
+      void queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      void queryClient.invalidateQueries({ queryKey: ["revenue-breakdown"] });
     },
   });
 }

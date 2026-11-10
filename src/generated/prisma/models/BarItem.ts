@@ -39,6 +39,7 @@ export type BarItemSumAggregateOutputType = {
 export type BarItemMinAggregateOutputType = {
   id: string | null
   name: string | null
+  code: string | null
   category: string | null
   price: number | null
   stock: number | null
@@ -48,6 +49,7 @@ export type BarItemMinAggregateOutputType = {
 export type BarItemMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  code: string | null
   category: string | null
   price: number | null
   stock: number | null
@@ -57,6 +59,7 @@ export type BarItemMaxAggregateOutputType = {
 export type BarItemCountAggregateOutputType = {
   id: number
   name: number
+  code: number
   category: number
   price: number
   stock: number
@@ -78,6 +81,7 @@ export type BarItemSumAggregateInputType = {
 export type BarItemMinAggregateInputType = {
   id?: true
   name?: true
+  code?: true
   category?: true
   price?: true
   stock?: true
@@ -87,6 +91,7 @@ export type BarItemMinAggregateInputType = {
 export type BarItemMaxAggregateInputType = {
   id?: true
   name?: true
+  code?: true
   category?: true
   price?: true
   stock?: true
@@ -96,6 +101,7 @@ export type BarItemMaxAggregateInputType = {
 export type BarItemCountAggregateInputType = {
   id?: true
   name?: true
+  code?: true
   category?: true
   price?: true
   stock?: true
@@ -192,6 +198,7 @@ export type BarItemGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type BarItemGroupByOutputType = {
   id: string
   name: string
+  code: string | null
   category: string | null
   price: number
   stock: number
@@ -224,6 +231,7 @@ export type BarItemWhereInput = {
   NOT?: Prisma.BarItemWhereInput | Prisma.BarItemWhereInput[]
   id?: Prisma.StringFilter<"BarItem"> | string
   name?: Prisma.StringFilter<"BarItem"> | string
+  code?: Prisma.StringNullableFilter<"BarItem"> | string | null
   category?: Prisma.StringNullableFilter<"BarItem"> | string | null
   price?: Prisma.IntFilter<"BarItem"> | number
   stock?: Prisma.IntFilter<"BarItem"> | number
@@ -234,6 +242,7 @@ export type BarItemWhereInput = {
 export type BarItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  code?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   stock?: Prisma.SortOrder
@@ -243,6 +252,7 @@ export type BarItemOrderByWithRelationInput = {
 
 export type BarItemWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  code?: string
   AND?: Prisma.BarItemWhereInput | Prisma.BarItemWhereInput[]
   OR?: Prisma.BarItemWhereInput[]
   NOT?: Prisma.BarItemWhereInput | Prisma.BarItemWhereInput[]
@@ -252,11 +262,12 @@ export type BarItemWhereUniqueInput = Prisma.AtLeast<{
   stock?: Prisma.IntFilter<"BarItem"> | number
   imageUrl?: Prisma.StringNullableFilter<"BarItem"> | string | null
   orderItems?: Prisma.OrderItemListRelationFilter
-}, "id">
+}, "id" | "code">
 
 export type BarItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  code?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   stock?: Prisma.SortOrder
@@ -274,6 +285,7 @@ export type BarItemScalarWhereWithAggregatesInput = {
   NOT?: Prisma.BarItemScalarWhereWithAggregatesInput | Prisma.BarItemScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"BarItem"> | string
   name?: Prisma.StringWithAggregatesFilter<"BarItem"> | string
+  code?: Prisma.StringNullableWithAggregatesFilter<"BarItem"> | string | null
   category?: Prisma.StringNullableWithAggregatesFilter<"BarItem"> | string | null
   price?: Prisma.IntWithAggregatesFilter<"BarItem"> | number
   stock?: Prisma.IntWithAggregatesFilter<"BarItem"> | number
@@ -283,6 +295,7 @@ export type BarItemScalarWhereWithAggregatesInput = {
 export type BarItemCreateInput = {
   id?: string
   name: string
+  code?: string | null
   category?: string | null
   price: number
   stock?: number
@@ -293,6 +306,7 @@ export type BarItemCreateInput = {
 export type BarItemUncheckedCreateInput = {
   id?: string
   name: string
+  code?: string | null
   category?: string | null
   price: number
   stock?: number
@@ -303,6 +317,7 @@ export type BarItemUncheckedCreateInput = {
 export type BarItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   stock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -313,6 +328,7 @@ export type BarItemUpdateInput = {
 export type BarItemUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   stock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -323,6 +339,7 @@ export type BarItemUncheckedUpdateInput = {
 export type BarItemCreateManyInput = {
   id?: string
   name: string
+  code?: string | null
   category?: string | null
   price: number
   stock?: number
@@ -332,6 +349,7 @@ export type BarItemCreateManyInput = {
 export type BarItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   stock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -341,6 +359,7 @@ export type BarItemUpdateManyMutationInput = {
 export type BarItemUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   stock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -350,6 +369,7 @@ export type BarItemUncheckedUpdateManyInput = {
 export type BarItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   category?: Prisma.SortOrder
   price?: Prisma.SortOrder
   stock?: Prisma.SortOrder
@@ -364,6 +384,7 @@ export type BarItemAvgOrderByAggregateInput = {
 export type BarItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   category?: Prisma.SortOrder
   price?: Prisma.SortOrder
   stock?: Prisma.SortOrder
@@ -373,6 +394,7 @@ export type BarItemMaxOrderByAggregateInput = {
 export type BarItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   category?: Prisma.SortOrder
   price?: Prisma.SortOrder
   stock?: Prisma.SortOrder
@@ -406,6 +428,7 @@ export type BarItemUpdateOneRequiredWithoutOrderItemsNestedInput = {
 export type BarItemCreateWithoutOrderItemsInput = {
   id?: string
   name: string
+  code?: string | null
   category?: string | null
   price: number
   stock?: number
@@ -415,6 +438,7 @@ export type BarItemCreateWithoutOrderItemsInput = {
 export type BarItemUncheckedCreateWithoutOrderItemsInput = {
   id?: string
   name: string
+  code?: string | null
   category?: string | null
   price: number
   stock?: number
@@ -440,6 +464,7 @@ export type BarItemUpdateToOneWithWhereWithoutOrderItemsInput = {
 export type BarItemUpdateWithoutOrderItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   stock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -449,6 +474,7 @@ export type BarItemUpdateWithoutOrderItemsInput = {
 export type BarItemUncheckedUpdateWithoutOrderItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.IntFieldUpdateOperationsInput | number
   stock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -489,6 +515,7 @@ export type BarItemCountOutputTypeCountOrderItemsArgs<ExtArgs extends runtime.Ty
 export type BarItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  code?: boolean
   category?: boolean
   price?: boolean
   stock?: boolean
@@ -500,6 +527,7 @@ export type BarItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type BarItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  code?: boolean
   category?: boolean
   price?: boolean
   stock?: boolean
@@ -509,6 +537,7 @@ export type BarItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type BarItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  code?: boolean
   category?: boolean
   price?: boolean
   stock?: boolean
@@ -518,13 +547,14 @@ export type BarItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type BarItemSelectScalar = {
   id?: boolean
   name?: boolean
+  code?: boolean
   category?: boolean
   price?: boolean
   stock?: boolean
   imageUrl?: boolean
 }
 
-export type BarItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "category" | "price" | "stock" | "imageUrl", ExtArgs["result"]["barItem"]>
+export type BarItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "category" | "price" | "stock" | "imageUrl", ExtArgs["result"]["barItem"]>
 export type BarItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orderItems?: boolean | Prisma.BarItem$orderItemsArgs<ExtArgs>
   _count?: boolean | Prisma.BarItemCountOutputTypeDefaultArgs<ExtArgs>
@@ -540,6 +570,7 @@ export type $BarItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    code: string | null
     category: string | null
     price: number
     stock: number
@@ -970,6 +1001,7 @@ export interface Prisma__BarItemClient<T, Null = never, ExtArgs extends runtime.
 export interface BarItemFieldRefs {
   readonly id: Prisma.FieldRef<"BarItem", 'String'>
   readonly name: Prisma.FieldRef<"BarItem", 'String'>
+  readonly code: Prisma.FieldRef<"BarItem", 'String'>
   readonly category: Prisma.FieldRef<"BarItem", 'String'>
   readonly price: Prisma.FieldRef<"BarItem", 'Int'>
   readonly stock: Prisma.FieldRef<"BarItem", 'Int'>

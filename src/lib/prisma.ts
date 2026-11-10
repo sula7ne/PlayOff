@@ -17,7 +17,14 @@ function createPrismaClient(): PrismaClient {
     connectionString,
     max: 10,
     idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 5_000,
+    connectionTimeoutMillis: 15_000,
+    maxUses: 750,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10_000,
+  });
+
+  pool.on("error", (err) => {
+    console.error("Unexpected error on idle Postgres client", err);
   });
 
   const adapter = new PrismaPg(pool);

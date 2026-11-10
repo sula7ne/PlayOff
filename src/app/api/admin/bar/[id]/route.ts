@@ -29,10 +29,11 @@ export async function PATCH(
     return NextResponse.json({ error: result.error.format() }, { status: 400 });
   }
 
-  const { name, category, price, stock, imageUrl } = result.data;
+  const { name, code, category, price, stock, imageUrl } = result.data;
 
   const data: {
     name?: string;
+    code?: string | null;
     category?: string | null;
     price?: number;
     stock?: number;
@@ -41,6 +42,10 @@ export async function PATCH(
 
   if (name !== undefined) {
     data.name = name;
+  }
+
+  if (code !== undefined) {
+    data.code = code?.trim() || null;
   }
 
   if (category !== undefined) {

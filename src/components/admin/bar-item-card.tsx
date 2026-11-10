@@ -83,6 +83,11 @@ export function BarItemCard({
       <div>
         <div className="text-sm font-medium text-foreground">{item.name}</div>
         <div className="text-xs text-muted-foreground">{item.category}</div>
+        {item.code && (
+          <div className="mt-1 font-mono text-[11px] tracking-tight text-zinc-500">
+            {item.code}
+          </div>
+        )}
       </div>
 
       <div className="mt-auto flex items-center justify-between">

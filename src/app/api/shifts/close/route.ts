@@ -18,18 +18,32 @@ export async function POST() {
   }
 
   const transactions = await prisma.financeTransaction.findMany({
-    where: { shiftId: shift.id, type: "INCOME" },
+    where: { shiftId: shift.id },
   });
 
-  const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
-  const cash = transactions
-    .filter((t) => t.paymentMethod === "CASH")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const income = transactions.filter((t) => t.type === "INCOME");
+  const expense = transactions.filter((t) => t.type === "EXPENSE");
+
+  const incomeTotal = income.reduce((sum, t) => sum + t.amount, 0);
+  const expenseTotal = expense.reduce((sum, t) => sum + t.amount, 0);
+
+  const totalRevenue = incomeTotal - expenseTotal;
+  const cash =
+    income
+      .filter((t) => t.paymentMethod === "CASH")
+      .reduce((sum, t) => sum + t.amount, 0) -
+    expense
+      .filter((t) => t.paymentMethod === "CASH")
+      .reduce((sum, t) => sum + t.amount, 0);
   const nonCash = totalRevenue - cash;
-  const bar = transactions
-    .filter((t) => (t.category ?? "").startsWith("Бар"))
-    .reduce((sum, t) => sum + t.amount, 0);
-  const station = transactions
+  const bar =
+    income
+      .filter((t) => (t.category ?? "").startsWith("Бар"))
+      .reduce((sum, t) => sum + t.amount, 0) -
+    expense
+      .filter((t) => (t.category ?? "").startsWith("Возврат"))
+      .reduce((sum, t) => sum + t.amount, 0);
+  const station = income
     .filter((t) => (t.category ?? "") === "GAMING_SESSION")
     .reduce((sum, t) => sum + t.amount, 0);
 

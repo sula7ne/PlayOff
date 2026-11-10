@@ -29,16 +29,32 @@ export async function GET(request: Request) {
   });
 
   const income = transactions.filter((t) => t.type === "INCOME");
-  const total = income.reduce((sum, t) => sum + t.amount, 0);
-  const kaspi = income
-    .filter((t) => t.paymentMethod === "KASPI_QR")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const cash = income
-    .filter((t) => t.paymentMethod === "CASH")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const expense = transactions.filter((t) => t.type === "EXPENSE");
+
+  const incomeTotal = income.reduce((sum, t) => sum + t.amount, 0);
+  const expenseTotal = expense.reduce((sum, t) => sum + t.amount, 0);
+
+  const kaspi =
+    income
+      .filter((t) => t.paymentMethod === "KASPI_QR")
+      .reduce((sum, t) => sum + t.amount, 0) -
+    expense
+      .filter((t) => t.paymentMethod === "KASPI_QR")
+      .reduce((sum, t) => sum + t.amount, 0);
+  const cash =
+    income
+      .filter((t) => t.paymentMethod === "CASH")
+      .reduce((sum, t) => sum + t.amount, 0) -
+    expense
+      .filter((t) => t.paymentMethod === "CASH")
+      .reduce((sum, t) => sum + t.amount, 0);
 
   return NextResponse.json({
-    summary: { total, kaspi, cash },
+    summary: {
+      total: incomeTotal - expenseTotal,
+      kaspi,
+      cash,
+    },
     transactions,
   });
 }

@@ -137,6 +137,7 @@ model Booking {
 model BarItem {
   id       String  @id @default(cuid())
   name     String
+  code     String? @unique
   category String?
   price    Int
   stock    Int     @default(0)
@@ -155,6 +156,7 @@ model Order {
   totalAmount   Int           @map("total_amount")
   paymentMethod PaymentMethod @default(CASH) @map("payment_method")
   createdAt     DateTime      @default(now()) @map("created_at")
+  refundedAt    DateTime?     @map("refunded_at")
 
   user                User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
   station             Station?             @relation(fields: [stationId], references: [id], onDelete: SetNull)
