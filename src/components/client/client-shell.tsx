@@ -44,6 +44,7 @@ export function ClientShell({ children }: { children: ReactNode }) {
   const rawInitData = useInitData();
 
   useEffect(() => {
+    console.log(isTMA(), "isTMA");
     if (!isTMA()) return;
 
     const cleanup = init();
@@ -118,7 +119,7 @@ export function ClientShell({ children }: { children: ReactNode }) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center text-center">
         <p className="text-sm text-red-400">
-          Не удалось авторизоваться в Telegram.
+          Не удалось авторизоваться в Telegram
         </p>
       </div>
     );
