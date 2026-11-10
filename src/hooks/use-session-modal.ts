@@ -79,5 +79,6 @@ export function useSessionModal(
     totalHours,
     price,
     changeStatus,
+    isPending: updateStationStatus.isPending,
   };
 }

@@ -65,6 +65,17 @@ async function handleStatusChange(id: string, body: unknown) {
     if (!shift) {
       return NextResponse.json({ error: "SHIFT_REQUIRED" }, { status: 400 });
     }
+
+    const activeSession = await prisma.gamingSession.findFirst({
+      where: { stationId: id, endTime: null },
+    });
+
+    if (activeSession) {
+      return NextResponse.json(
+        { error: "Сессия уже запущена" },
+        { status: 409 },
+      );
+    }
   }
 
   try {
@@ -79,6 +90,14 @@ async function handleStatusChange(id: string, body: unknown) {
           where: { adminId: admin.id, status: "OPEN" },
           orderBy: { startTime: "desc" },
         });
+
+        const existing = await tx.gamingSession.findFirst({
+          where: { stationId: id, endTime: null },
+        });
+
+        if (existing) {
+          throw new Error("SESSION_ACTIVE");
+        }
 
         const session = await tx.gamingSession.create({
           data: {
@@ -164,7 +183,14 @@ async function handleStatusChange(id: string, body: unknown) {
     }, { timeout: 15000 });
 
     return NextResponse.json({ station });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === "SESSION_ACTIVE") {
+      return NextResponse.json(
+        { error: "Сессия уже запущена" },
+        { status: 409 },
+      );
+    }
+    console.error("Station status change error:", error);
     return NextResponse.json({ error: "Station not found" }, { status: 404 });
   }
 }

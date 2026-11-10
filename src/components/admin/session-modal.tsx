@@ -58,12 +58,39 @@ export function SessionModal({
         )}
 
         <DialogFooter>
-          {station.status === "FREE" && <Button onClick={() => session.changeStatus("BUSY")}>Запустить сессию</Button>}
-          {station.status === "BUSY" && (
-            <Button variant="destructive" onClick={() => session.changeStatus("FREE")}>Завершить сессию</Button>
+          {station.status === "FREE" && (
+            <Button
+              disabled={session.isPending}
+              onClick={() => session.changeStatus("BUSY")}
+            >
+              {session.isPending ? "Запуск…" : "Запустить сессию"}
+            </Button>
           )}
-          {station.status === "RESERVED" && <Button onClick={() => session.changeStatus("FREE")}>Снять бронь</Button>}
-          {station.status === "MAINTENANCE" && <Button onClick={() => session.changeStatus("FREE")}>Вернуть в строй</Button>}
+          {station.status === "BUSY" && (
+            <Button
+              variant="destructive"
+              disabled={session.isPending}
+              onClick={() => session.changeStatus("FREE")}
+            >
+              {session.isPending ? "Завершение…" : "Завершить сессию"}
+            </Button>
+          )}
+          {station.status === "RESERVED" && (
+            <Button
+              disabled={session.isPending}
+              onClick={() => session.changeStatus("FREE")}
+            >
+              {session.isPending ? "Обработка…" : "Снять бронь"}
+            </Button>
+          )}
+          {station.status === "MAINTENANCE" && (
+            <Button
+              disabled={session.isPending}
+              onClick={() => session.changeStatus("FREE")}
+            >
+              {session.isPending ? "Обработка…" : "Вернуть в строй"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -52,7 +52,7 @@ export async function POST(
             amount: order.totalAmount,
             type: "EXPENSE",
             paymentMethod: order.paymentMethod,
-            category: `Возврат · заказ №${order.number}`,
+            category: `Бар · Возврат заказа №${order.number}`,
             orderId: order.id,
             adminId: admin.id,
             shiftId: shift?.id ?? null,

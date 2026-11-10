@@ -41,7 +41,7 @@ export async function POST() {
       .filter((t) => (t.category ?? "").startsWith("Бар"))
       .reduce((sum, t) => sum + t.amount, 0) -
     expense
-      .filter((t) => (t.category ?? "").startsWith("Возврат"))
+      .filter((t) => (t.category ?? "").startsWith("Бар · Возврат"))
       .reduce((sum, t) => sum + t.amount, 0);
   const station = income
     .filter((t) => (t.category ?? "") === "GAMING_SESSION")

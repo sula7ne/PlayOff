@@ -29,7 +29,11 @@ export async function GET(request: Request) {
   const transactions = await prisma.financeTransaction.findMany({
     where: { ...dateFilter, ...adminFilter },
     orderBy: { createdAt: "desc" },
-    include: { admin: { select: { name: true } } },
+    include: {
+      admin: { select: { name: true } },
+      gamingSession: { select: { station: { select: { name: true } } } },
+      order: { select: { number: true } },
+    },
   });
 
   const income = transactions.filter((t) => t.type === "INCOME");
@@ -67,6 +71,11 @@ export async function GET(request: Request) {
       category: t.category,
       createdAt: t.createdAt,
       adminName: t.admin?.name ?? null,
+      label: t.gamingSession?.station?.name
+        ? `Станция · ${t.gamingSession.station.name}`
+        : t.order
+          ? `Бар · ${t.type === "EXPENSE" ? "Возврат заказа" : "Заказ"} №${t.order.number}`
+          : t.category,
     })),
   });
 }
