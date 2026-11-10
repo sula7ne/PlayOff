@@ -1,12 +1,13 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Gamepad2, Loader2, Send } from "lucide-react";
+import {
+  init,
+  miniApp,
+  closingBehavior,
+  useRawInitData,
+} from "@tma.js/sdk-react";
 import { hapticImpact } from "@/lib/telegram";
 import { BottomNav } from "@/components/client/bottom-nav";
 
@@ -20,16 +21,6 @@ type Profile = {
   rank: string;
 };
 
-const emptySubscribe = () => () => {};
-
-function useMounted(): boolean {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
-}
-
 const rawBotUrl =
   process.env.NEXT_PUBLIC_TELEGRAM_BOT_URL ?? "https://t.me/";
 const BOT_URL = rawBotUrl.startsWith("http")
@@ -37,27 +28,37 @@ const BOT_URL = rawBotUrl.startsWith("http")
   : `https://${rawBotUrl}`;
 const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(BOT_URL)}`;
 
+function useInitData(): string | undefined {
+  try {
+    return useRawInitData();
+  } catch {
+    return undefined;
+  }
+}
+
 export function ClientShell({ children }: { children: ReactNode }) {
-  const mounted = useMounted();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState(false);
 
-  const isTelegram =
-    mounted &&
-    (Boolean(window.Telegram?.WebApp?.initData) ||
-      navigator.userAgent.toLowerCase().includes("telegram"));
+  const rawInitData = useInitData();
 
   useEffect(() => {
-    if (!isTelegram) return;
+    const cleanup = init();
 
-    const tg = window.Telegram?.WebApp;
-    tg?.ready();
-    tg?.expand();
+    miniApp.mount();
+    miniApp.ready();
+    closingBehavior.mount();
+
+    return cleanup;
+  }, []);
+
+  useEffect(() => {
+    if (!rawInitData) return;
 
     fetch("/api/auth/telegram", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: tg?.initData ?? "" }),
+      body: JSON.stringify({ initData: rawInitData }),
     })
       .then(async (res) => {
         const data = (await res.json()) as { error?: string; user?: Profile };
@@ -66,17 +67,9 @@ export function ClientShell({ children }: { children: ReactNode }) {
       })
       .then(setProfile)
       .catch(() => setError(true));
-  }, [isTelegram]);
+  }, [rawInitData]);
 
-  if (!mounted) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-accent" />
-      </div>
-    );
-  }
-
-  if (!isTelegram) {
+  if (!rawInitData) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <Gamepad2 className="size-10 text-accent" />
