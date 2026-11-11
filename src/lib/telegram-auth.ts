@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { parse, validate } from "@telegram-apps/init-data-node";
 
 export type TelegramInitDataUser = {
   id: number;
@@ -6,68 +6,49 @@ export type TelegramInitDataUser = {
   last_name?: string;
   username?: string;
   language_code?: string;
-  is_premium?: boolean;
+  photo_url?: string;
 };
 
 export type TelegramInitData = {
   user: TelegramInitDataUser;
-  authDate: number;
+  auth_date: number;
+  hash: string;
 };
 
 export function validateTelegramInitData(
-  initData: string,
+  initDataRaw: string,
   botToken: string,
 ): TelegramInitData | null {
-  const params = new Map<string, string>();
-
-  for (const pair of initData.split("&")) {
-    const idx = pair.indexOf("=");
-    if (idx === -1) continue;
-    params.set(pair.slice(0, idx), pair.slice(idx + 1));
-  }
-
-  const hash = params.get("hash");
-  if (!hash) return null;
-  params.delete("hash");
-
-  const dataCheckString = Array.from(params.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${value}`)
-    .join("\n");
-
-  const secretKey = createHmac("sha256", "WebAppData")
-    .update(botToken)
-    .digest();
-  const calculated = createHmac("sha256", secretKey)
-    .update(dataCheckString)
-    .digest("hex");
-
-  const expected = Buffer.from(calculated, "hex");
-  const received = Buffer.from(hash, "hex");
-
-  if (
-    expected.length !== received.length ||
-    !timingSafeEqual(expected, received)
-  ) {
-    return null;
-  }
-
-  const userRaw = params.get("user");
-  if (!userRaw) return null;
-
-  let user: TelegramInitDataUser;
-
   try {
-    user = JSON.parse(decodeURIComponent(userRaw)) as TelegramInitDataUser;
-  } catch {
+    // Поддержка mock-авторизации в dev-режиме для тестов в обычном браузере
+    // if (
+    //   process.env.NODE_ENV === "development" &&
+    //   initDataRaw.startsWith("mock_")
+    // ) {
+    //   return {
+    //     auth_date: Math.floor(Date.now() / 1000),
+    //     hash: "mock",
+    //     user: { id: 673822809, first_name: "Sultan", username: "sula7ne" },
+    //   };
+    // }
+
+    validate(initDataRaw, botToken, {
+      expiresIn: 86400, 
+    });
+
+    const parsedData = parse(initDataRaw);
+
+    if (!parsedData.user || typeof parsedData.user.id !== "number") {
+      return null;
+    }
+
+    return {
+      user: parsedData.user as TelegramInitDataUser,
+      auth_date: Number(parsedData.authDate || Math.floor(Date.now() / 1000)),
+      hash: parsedData.hash,
+    };
+  } catch (err) {
+    console.warn("Telegram initData validation failed:", err);
     return null;
   }
-
-  if (!user || typeof user.id !== "number") {
-    return null;
-  }
-
-  const authDate = Number(params.get("auth_date") ?? 0);
-
-  return { user, authDate };
 }

@@ -75,6 +75,22 @@ export async function POST(request: Request) {
   const end = new Date(start.getTime() + pricing.totalHours * 3600 * 1000);
   const totalPrice = pricing.price;
 
+  const overlapping = await prisma.booking.findFirst({
+    where: {
+      stationId,
+      status: { in: ["PENDING", "CONFIRMED"] },
+      startTime: { lt: end },
+      endTime: { gt: start },
+    },
+  });
+
+  if (overlapping) {
+    return NextResponse.json(
+      { error: "В это время станция уже забронирована" },
+      { status: 409 },
+    );
+  }
+
   const kaspiPaymentId = randomUUID();
   const expiresAt = new Date(Date.now() + PENDING_TTL_MS);
 

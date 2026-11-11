@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
-import {
-  useClientBar,
-  useCreateClientOrder,
-  type ClientBarItem,
-} from "@/hooks/use-client";
+import { useClientBar, type ClientBarItem } from "@/hooks/use-client";
 import { getCartTotal, useCartStore } from "@/store/cart-store";
-import { hapticImpact, hapticSuccess } from "@/lib/telegram";
+import { hapticImpact } from "@/lib/telegram";
 import { formatTenge } from "@/lib/format";
 import { BAR_CATEGORIES } from "@/lib/constants";
 import {
@@ -62,7 +58,6 @@ function BarItemCard({
 export function BarTab() {
   const { data: items = [], isLoading } = useClientBar();
   const cart = useCartStore();
-  const createOrder = useCreateClientOrder();
   const [category, setCategory] = useState("Все");
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -73,24 +68,6 @@ export function BarTab() {
       : items.filter((i) => i.category === category);
   const total = getCartTotal(cart.items);
   const totalCount = cart.items.reduce((s, i) => s + i.quantity, 0);
-
-  const checkout = () => {
-    if (cart.items.length === 0) return;
-
-    hapticSuccess();
-    createOrder.mutate(
-      {
-        paymentMethod: "KASPI_QR",
-        items: cart.items.map((i) => ({ id: i.id, quantity: i.quantity })),
-      },
-      {
-        onSuccess: () => {
-          cart.clearCart();
-          setCartOpen(false);
-        },
-      },
-    );
-  };
 
   return (
     <div className="p-4 pb-28">
@@ -206,16 +183,16 @@ export function BarTab() {
             ))}
           </div>
 
-          {createOrder.isError && (
-            <p className="text-sm text-red-400">Не удалось оформить заказ.</p>
-          )}
+          <p className="text-xs text-muted-foreground">
+            Оплата и оформление заказа производятся на ресепшн.
+          </p>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setCartOpen(false)}>
               Закрыть
             </Button>
-            <Button onClick={checkout} disabled={createOrder.isPending}>
-              {createOrder.isPending ? "Оформление…" : "Оформить заказ"}
+            <Button disabled className="bg-zinc-700/60 text-zinc-400">
+              На ресепшн
             </Button>
           </DialogFooter>
         </DialogContent>

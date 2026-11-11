@@ -1,4 +1,4 @@
-export const PENDING_TTL_MS = 15 * 60 * 1000;
+export const PENDING_TTL_MS = 5 * 60 * 1000;
 
 export function buildKaspiDeeplink(orderId: string, amount: number): string {
   const merchantId = process.env.KASPI_MERCHANT_ID ?? "";

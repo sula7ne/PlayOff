@@ -35,6 +35,24 @@ export function getMaxPaidHours(startTime: Date): number {
   return paid;
 }
 
+export function getMaxPaidHoursWithin(
+  startTime: Date,
+  maxDurationHours: number,
+): number {
+  const totalAllowed = Math.min(
+    getMaxHoursUntilClose(startTime),
+    maxDurationHours,
+  );
+  const weekday = isWeekday(startTime);
+
+  let paid = Math.floor(totalAllowed);
+  while (paid > 0 && paid + (weekday ? Math.floor(paid / 2) : 0) > totalAllowed) {
+    paid--;
+  }
+
+  return paid;
+}
+
 export function isWeekday(date: Date): boolean {
   const day = kz(date).getUTCDay();
   return day >= 1 && day <= 5;

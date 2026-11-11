@@ -1,13 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 
+export type ClientBookingSlot = {
+  startTime: string;
+  endTime: string;
+  status: "PENDING" | "CONFIRMED";
+};
+
 export type ClientStation = {
   id: string;
   name: string;
   isVip: boolean;
   status: "FREE" | "BUSY" | "RESERVED" | "MAINTENANCE";
+  posX: number;
+  posY: number;
   images: string[];
   games: string[];
+  upcomingBookings: ClientBookingSlot[];
 };
 
 export type ClientBarItem = {
@@ -58,10 +67,14 @@ export function useClientProfile() {
 export function useClientStations() {
   return useQuery({
     queryKey: ["client-stations"],
-    queryFn: () =>
-      apiFetch<{ stations: ClientStation[] }>("/api/client/stations").then(
-        (d) => d.stations,
-      ),
+    queryFn: async () => {
+      const data = await apiFetch<{ stations: ClientStation[] }>(
+        "/api/client/stations",
+      );
+
+      return data.stations;
+    },
+    refetchInterval: 15_000,
   });
 }
 
@@ -86,6 +99,22 @@ export function useClientBookings() {
   });
 }
 
+export type ClientBookingPay = {
+  deeplink: string;
+  name: string;
+  expiresAt: string | null;
+  amount: number;
+};
+
+export function useClientBookingPay(id: string | null) {
+  return useQuery({
+    queryKey: ["client-booking-pay", id],
+    queryFn: () =>
+      apiFetch<ClientBookingPay>(`/api/client/bookings/${id}/pay`),
+    enabled: id !== null,
+  });
+}
+
 export function useCreateClientBooking() {
   const queryClient = useQueryClient();
 
@@ -101,6 +130,7 @@ export function useCreateClientBooking() {
       ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["client-bookings"] });
+      void queryClient.invalidateQueries({ queryKey: ["client-stations"] });
     },
   });
 }
@@ -114,6 +144,7 @@ export function useCancelClientBooking() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["client-bookings"] });
       void queryClient.invalidateQueries({ queryKey: ["client-me"] });
+      void queryClient.invalidateQueries({ queryKey: ["client-stations"] });
     },
   });
 }

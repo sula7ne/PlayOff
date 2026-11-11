@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-import { Gamepad2, Loader2, Send } from "lucide-react";
 import {
-  init,
-  miniApp,
-  closingBehavior,
-  useRawInitData,
-  isTMA,
-} from "@tma.js/sdk-react";
+  useEffect,
+  useSyncExternalStore,
+  useState,
+  type ReactNode,
+} from "react";
+import { Gamepad2, Loader2, Send } from "lucide-react";
 import { hapticImpact } from "@/lib/telegram";
 import { BottomNav } from "@/components/client/bottom-nav";
+import { QueryProvider } from "@/components/query-provider";
 
 type Profile = {
   id: string;
@@ -22,6 +21,9 @@ type Profile = {
   rank: string;
 };
 
+const LOADING = "__loading__";
+const BROWSER = "__browser__";
+
 const rawBotUrl =
   process.env.NEXT_PUBLIC_TELEGRAM_BOT_URL ?? "https://t.me/";
 const BOT_URL = rawBotUrl.startsWith("http")
@@ -29,51 +31,76 @@ const BOT_URL = rawBotUrl.startsWith("http")
   : `https://${rawBotUrl}`;
 const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(BOT_URL)}`;
 
-function useInitData(): string | undefined {
-  try {
-    return useRawInitData();
-  } catch {
-    return undefined;
+const subscribe = () => () => {};
+
+function getInitDataSnapshot(): string {
+  if (typeof window === "undefined") return LOADING;
+
+  const tg = window.Telegram?.WebApp;
+  
+  if (tg?.initData && tg.initData.length > 0) {
+    return tg.initData;
   }
+
+  const isTelegramEnv = 
+    Boolean(tg?.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0) ||
+    /Telegram/i.test(navigator.userAgent);
+
+  if (isTelegramEnv) {
+    return tg?.initData || LOADING;
+  }
+
+  return BROWSER;
 }
 
+const getServerSnapshot = () => LOADING;
+
 export function ClientShell({ children }: { children: ReactNode }) {
+  const initData = useSyncExternalStore(
+    subscribe,
+    getInitDataSnapshot,
+    getServerSnapshot,
+  );
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState(false);
 
-  const rawInitData = useInitData();
+  console.log("initData", initData);
 
   useEffect(() => {
-    console.log(isTMA(), "isTMA");
-    if (!isTMA()) return;
+    if (initData === LOADING || initData === BROWSER) return;
 
-    const cleanup = init();
-
-    miniApp.mount();
-    miniApp.ready();
-    closingBehavior.mount();
-
-    return cleanup;
-  }, []);
-
-  useEffect(() => {
-    if (!rawInitData) return;
+    const tg = window.Telegram?.WebApp;
+    try {
+      tg?.ready?.();
+      tg?.expand?.();
+    } catch {
+      // Telegram SDK не обязателен — игнорируем ошибки инициализации.
+    }
 
     fetch("/api/auth/telegram", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: rawInitData }),
+      body: JSON.stringify({ initData }),
     })
       .then(async (res) => {
-        const data = (await res.json()) as { error?: string; user?: Profile };
-        if (!res.ok) throw new Error(data.error ?? "Auth failed");
-        return data.user as Profile;
+        const json = (await res.json()) as { error?: string; user?: Profile };
+        if (!res.ok) throw new Error(json.error ?? "Auth failed");
+        return json.user as Profile;
       })
       .then(setProfile)
       .catch(() => setError(true));
-  }, [rawInitData]);
+  }, [initData]);
 
-  if (!rawInitData) {
+  if (initData === LOADING) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <Loader2 className="size-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (initData === BROWSER) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <Gamepad2 className="size-10 text-accent" />
@@ -108,10 +135,14 @@ export function ClientShell({ children }: { children: ReactNode }) {
 
   if (profile) {
     return (
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <main className="mx-auto w-full max-w-lg flex-1 pb-20">{children}</main>
-        <BottomNav />
-      </div>
+      <QueryProvider>
+        <div className="flex min-h-screen flex-col bg-background text-foreground">
+          <main className="mx-auto w-full max-w-lg flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+            {children}
+          </main>
+          <BottomNav />
+        </div>
+      </QueryProvider>
     );
   }
 

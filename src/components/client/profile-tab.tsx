@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Trophy } from "lucide-react";
 import { useClientBookings, useClientProfile } from "@/hooks/use-client";
 import { ActiveSessionBanner } from "@/components/client/active-session-banner";
@@ -19,6 +20,7 @@ const STATUS_CLASS: Record<string, string> = {
 };
 
 export function ProfileTab() {
+  const router = useRouter();
   const { data, isLoading } = useClientProfile();
   const { data: bookings = [] } = useClientBookings();
 
@@ -65,9 +67,11 @@ export function ProfileTab() {
         ) : (
           <div className="space-y-2">
             {bookings.map((b) => (
-              <div
+              <button
                 key={b.id}
-                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                type="button"
+                onClick={() => router.push(`/bookings/${b.id}`)}
+                className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left transition-colors hover:border-white/20"
               >
                 <div>
                   <div className="text-sm font-medium">
@@ -87,7 +91,7 @@ export function ProfileTab() {
                     {STATUS_LABEL[b.status] ?? b.status}
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}

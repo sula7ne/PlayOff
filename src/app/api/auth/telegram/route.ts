@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { signSessionToken } from "@/lib/jwt";
 import { setClientCookie } from "@/lib/auth";
+import { signSessionToken } from "@/lib/jwt";
 import { validateTelegramInitData } from "@/lib/telegram-auth";
 
 export async function POST(request: Request) {
